@@ -1,5 +1,7 @@
 package com.onetomany.practiceonetomany.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 
 @Entity
@@ -12,6 +14,7 @@ public class Student {
 
     @ManyToOne
     @JoinColumn(name = "professor_id")
+    @JsonBackReference
     private Professor professor;
 
     public Student() {

@@ -1,5 +1,7 @@
 package com.onetomany.practiceonetomany.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ public class Professor {
     private String name;
 
     @OneToMany(mappedBy = "professor")
+    @JsonManagedReference
     private List<Student> students = new ArrayList<>();
 
     public Professor() {
