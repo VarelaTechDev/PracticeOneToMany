@@ -1,0 +1,59 @@
+@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "professor_id")
+    private Professor professor;
+
+@OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Student> students = new ArrayList<>();
+
+Two annotations used: @ManyToOne and @OneToMany. These annotations are used in Java frameworks like JPA (Java Persistence API) to define relationships between entities in a relational database.
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    This annotation is used to define a many-to-one relationship between two entities. In this case, it indicates that the Professor class has a many-to-one relationship with another entity (presumably the Student class). The fetch attribute specifies the fetching strategy for this relationship, and in this case, it is set to LAZY. Lazy fetching means that the related entity will be loaded from the database only when it is explicitly accessed for the first time, reducing unnecessary database queries.
+
+    @JoinColumn(name = "professor_id")
+    This annotation specifies the column in the database table that will be used to join the two entities. In this case, the Professor entity will have a column named "professor_id" in its corresponding table, which will be used to establish the relationship.
+
+    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true)
+    This annotation is used to define a one-to-many relationship between two entities. It indicates that the Professor class has a one-to-many relationship with the Student class. The mappedBy attribute specifies the field name in the Student class that owns the relationship. The cascade attribute defines the cascading behavior for operations like saving and deleting entities. In this case, CascadeType.ALL means that any operation performed on the Professor entity should be cascaded to the associated Student entities. The orphanRemoval attribute specifies whether orphaned Student entities (i.e., those without a corresponding Professor) should be automatically removed from the database.
+
+Are these annotations necessary?
+The necessity of these annotations depends on the requirements of your application and the desired relationship between the Professor and Student entities. If you want to establish a relationship where a Professor can have multiple Student entities associated with them, and you need to efficiently fetch and manage these relationships, then these annotations are necessary. However, if your application doesn't require such relationships or you're using a different persistence mechanism that doesn't rely on these annotations, then they may not be necessary.
+
+
+Student A
+Student B
+
+Both of them belong to professor X
+
+If I delete professor X, the student exist, but their professor reference is now null
+
+If I delete student A instead, it will just remove it from the list from professor X students
+
+
+To achieve the desired behavior where deleting the Professor entity sets the professor reference to null in associated Student entities, and deleting a Student entity removes it from the list of Professor's students, you can modify your code as follows:
+
+By setting orphanRemoval = false in the @OneToMany annotation in the Professor entity class, it ensures that deleting the Professor entity won't cascade to delete the associated Student entities. Instead, their professor reference will be set to null.
+
+Here's how the behavior will work based on your scenario:
+
+    Deleting Professor X: The Professor X entity will be deleted, and the professor reference of both Student A and Student B will be set to null. The Student entities will still exist in the database.
+
+    Deleting Student A: Only Student A will be removed from the list of Professor X's students. The Student A entity will be deleted, and the students list of Professor X will no longer include Student A. Student B and Professor X will remain unaffected.
+
+Remember to adjust your service layer accordingly to handle the deletion operations based on these modified relationships.
+
+
+If you need to simplify your implementation and complete it within a short timeframe, you can make the following modifications:
+
+    Remove cascade = CascadeType.REMOVE:
+    Removing the cascade = CascadeType.REMOVE from the @ManyToOne annotation means that deleting a Professor entity won't automatically cascade the deletion to the associated Student entities. Instead, you will need to handle the deletion of the Student entities separately.
+
+    Remove fetch = FetchType.LAZY:
+    Removing the fetch = FetchType.LAZY from the @ManyToOne annotation means that the associated Professor entity will be eagerly loaded by default when accessing the relationship. This can be simpler to implement as you won't need to explicitly manage lazy loading.
+
+Here's an updated code snippet without the cascade and fetch attributes:
+
+With these modifications, deleting a Professor entity will not automatically delete the associated Student entities. You will need to handle the deletion of Student entities separately. Additionally, the associated Professor entity will be eagerly loaded by default when accessing the relationship.
+
+Remember to adjust your service layer accordingly to handle the deletion of Student entities or any other operations based on these modifications.
+
